@@ -1,0 +1,13 @@
+
+django==1.8.7
+psycopg2==2.6.1
+pytz==2016.4
+
+#tastypie
+django-tastypie==0.13.3
+lxml==3.6.0
+defusedxml==0.4.1
+
+# the existing version of django-oauth2-provider doesn't work with django 1.8 because of the
+# deprecation of mimetypes in HttpResponse; so we get a version that has that fixed
+-e git+https://github.com/glassresistor/django-oauth2-provider.git#egg=django-oauth2-provider

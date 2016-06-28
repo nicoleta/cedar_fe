@@ -1,0 +1,109 @@
+{% load staticfiles %}
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>API TEST</title>
+		<script type="text/javascript" src="{% static "js/jquery-1.12.3.min.js" %}"></script>
+		<script type="text/javascript" src="{% static "js/jjsonviewer.js" %}"></script>
+		<link rel="stylesheet" href="{% static "css/jjsonviewer.css" %}" />
+        
+
+
+        <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/themes/base/jquery-ui.css" />
+
+<script type="text/javascript">
+$(document).ready(function(){
+ $('#id_go').click(function(e) {
+ 		
+ 		var url = $("#id_url").val();
+ 		var method = $("#id_method").val();
+ 		var params_input = $("#id_params_input").val();
+ 		var accesstoken = $("#id_accesstoken").val();
+ 		
+ 		if(params_input == 'query'){
+	 		
+	 		var params = {};
+	
+	 		var extra = $("#id_params").val();
+	 		console.debug(extra)
+	 		if(extra !== "") {
+	 			extra = extra.split('\n');
+		 		for(var i in extra){
+		 			var ss = extra[i].split(':');
+		 			params[ss[0].trim()] = ss[1].trim();
+		 		}
+		 	}
+		 	if(method != 'GET'){
+ 				params = JSON.stringify(params)
+ 			}
+		}
+		else {
+			var params = $("#id_params").val();
+		}
+
+
+
+	 	console.debug('--------------- Method:', method, '-----------------------------------------------------------')
+	 	console.debug('URL:', url)
+ 		//console.debug('Params:', JSON.parse(params))
+		
+		$('#processing').attr('style', '');
+		$.ajax({
+                type: method,
+                url: url,
+                contentType: "application/json",
+                //dataType: "json",
+                data: params,
+                beforeSend : function( xhr ) {
+			        xhr.setRequestHeader( "Authorization", "OAuth " + accesstoken );
+			    },
+            })
+            .success(function(d, textStatus, response) {
+            	$('#processing').attr('style', 'display: none');
+                console.debug('Result:', d);
+                if(d) $("#jjson").jJsonViewer(d);
+                else $("#jjson").html("Created: " + response.getResponseHeader('Location'));
+            })
+            .error(function(response, textStatus) {
+               $('#processing').attr('style', 'display: none');
+               console.debug(response)
+               $("#jjson").html(response.responseText.replace(/\n/g, '<br>'))
+            });
+ });
+});
+</script>
+</head>
+
+<body>
+<table width="100%" border=1><tr>
+<td style="vertical-align: top; padding:15px;">
+	URL: <input id="id_url" name="url" type=text value="/api/v1/campaign/" size=50></input>
+	<br /><br />
+	Method: <select id="id_method" name="method">
+			<option value="GET">GET</option>
+			<option value="PUT">PUT</option>
+			<option value="POST">POST</option>
+			<option value="DELETE">DELETE</option>
+			</select>
+	<br /><br />
+	ACCESS TOKEN: <input id="id_accesstoken" name="accesstoken" type=text value="5c8d630893f4772fe37aed5a02433e18079e7460" size=50></input>
+	<br /><br />
+
+	Input type: <select id="id_params_input" name="params_input">
+			<option value="json">JSON</option>
+			<option value="query">Query prams (param:value per line)</option>
+			</select>
+	<br /><br />
+
+	Input: <br/><textarea id="id_params" name="params" cols=80 rows=30></textarea>
+	<br /><br /><br /> <button id="id_go"> GO </button> <span id="processing" style="display:none">Please wait...</span>
+</td>
+<td style="width:60%;vertical-align: top; padding:15px;">
+<div style="height:800px; overflow-y:auto;">
+	<div id="jjson" class="jjson"></div>
+</div>
+</td>
+</tr></table>
+</body>
+</html>
