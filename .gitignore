@@ -1,2 +1,9 @@
+# Compiled Python files
 *.pyc
+ 
+# Project files
+*.project
+*.pydevproject
+*.settings
+*.swp
 
